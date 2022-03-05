@@ -17,4 +17,8 @@ params = {
 }
 
 json = requests.get(url, params=params, headers=headers).json()
-print(json)
+
+coins = json['data']
+
+for x in coins:
+    print(x['symbol'], x['quote']['USD']['price'])
