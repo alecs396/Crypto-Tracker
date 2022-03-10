@@ -8,6 +8,7 @@ import csv
 import datetime
 import apikey
 import pandas as pd
+import time
 
 # Create empty list
 crypto_time_list = []
@@ -50,7 +51,6 @@ def scrape():
             crypto_price_list.append(x['quote']['USD']['price'])
             crypto_circulating_supply_list.append(x['circulating_supply'])
             crypto_symbol_list.append(x['symbol'])
-        print(time)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
         
@@ -67,16 +67,18 @@ df.to_csv('data.csv', index=False, date_format='%Y-%m-%d %H:%M:%S')
 
 print(df)
 
-# fieldnames = ['Name', 'Market Cap', 'Price', 'Circulating Supply', 'Symbol']
+# fieldnames = ['Time', 'Name', 'Market Cap', 'Price', 'Circulating Supply', 'Symbol']
 
-# with open('data.csv') as csv_file:
+# with open('data2.csv', 'w') as csv_file:
 #         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 #         csv_writer.writeheader()
 # while True:
-#     with open('data.csv') as csv_file:
+#     scrape()
+#     with open('data2.csv', 'a') as csv_file:
 #         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         
 #         info = {
+#             "Time": crypto_time_list,
 #             "Name": crypto_name_list,
 #             "Market Cap": crypto_market_cap_list,
 #             "Price": crypto_price_list,
@@ -84,3 +86,4 @@ print(df)
 #             "Symbol": crypto_symbol_list
 #         }
 #         csv_writer.writerow(info)
+#     time.sleep(60)
