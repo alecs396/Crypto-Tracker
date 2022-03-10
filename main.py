@@ -16,7 +16,9 @@ data = pd.read_csv('data.csv')
 
 x = data['Symbol']
 y1 = data['Market Cap']
+y2 = data['24h Volume']
 plt.bar(x, y1, color='#444444', label="Market Cap")
+#plt.bar(x, y2, label="24h Volume")
 
 
 plt.legend()

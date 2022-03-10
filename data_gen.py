@@ -13,6 +13,7 @@ import time
 # Create empty list
 crypto_time_list = []
 crypto_name_list = []
+crypto_volume_list = []
 crypto_market_cap_list = []
 crypto_price_list = []
 crypto_circulating_supply_list = []
@@ -47,6 +48,7 @@ def scrape():
             timestamp = pd.to_datetime(x['last_updated'])
             crypto_time_list.append(timestamp)
             crypto_name_list.append(x['name'])
+            crypto_volume_list.append(x['quote']['USD']['volume_24h'])
             crypto_market_cap_list.append(x['quote']['USD']['market_cap'])
             crypto_price_list.append(x['quote']['USD']['price'])
             crypto_circulating_supply_list.append(x['circulating_supply'])
@@ -59,6 +61,7 @@ time = pd.datetime.now()
 # Store Data in dataframe
 df['Time'] = crypto_time_list
 df['Name'] = crypto_name_list
+df['24h Volume'] = crypto_volume_list
 df['Market Cap'] = crypto_market_cap_list
 df['Price'] = crypto_price_list
 df['Circulating Supply'] = crypto_circulating_supply_list
