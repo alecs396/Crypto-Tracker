@@ -1,3 +1,6 @@
+from calendar import timegm
+from distutils.log import info
+from time import time
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
@@ -6,13 +9,13 @@ import datetime
 import apikey
 import pandas as pd
 
-# Create empty lists
+# Create empty list
+crypto_time_list = []
 crypto_name_list = []
 crypto_market_cap_list = []
 crypto_price_list = []
 crypto_circulating_supply_list = []
 crypto_symbol_list = []
-
 # Create empty dataframe to organize data
 df = pd.DataFrame()
 
@@ -40,23 +43,44 @@ def scrape():
         coins = data['data']
         # Append data to lists
         for x in coins:
-                    crypto_name_list.append(x['name'])
-                    crypto_market_cap_list.append(x['quote']['USD']['market_cap'])
-                    crypto_price_list.append(x['quote']['USD']['price'])
-                    crypto_circulating_supply_list.append(x['circulating_supply'])
-                    crypto_symbol_list.append(x['symbol'])
+            timestamp = pd.to_datetime(x['last_updated'])
+            crypto_time_list.append(timestamp)
+            crypto_name_list.append(x['name'])
+            crypto_market_cap_list.append(x['quote']['USD']['market_cap'])
+            crypto_price_list.append(x['quote']['USD']['price'])
+            crypto_circulating_supply_list.append(x['circulating_supply'])
+            crypto_symbol_list.append(x['symbol'])
+        print(time)
     except (ConnectionError, Timeout, TooManyRedirects) as e:
         print(e)
         
 scrape()
-
+time = pd.datetime.now()
 # Store Data in dataframe
+df['Time'] = crypto_time_list
 df['Name'] = crypto_name_list
 df['Market Cap'] = crypto_market_cap_list
 df['Price'] = crypto_price_list
 df['Circulating Supply'] = crypto_circulating_supply_list
 df['Symbol'] = crypto_symbol_list
-df.to_csv('data.csv')
+df.to_csv('data.csv', index=False, date_format='%Y-%m-%d %H:%M:%S')
 
-#show data
 print(df)
+
+# fieldnames = ['Name', 'Market Cap', 'Price', 'Circulating Supply', 'Symbol']
+
+# with open('data.csv') as csv_file:
+#         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+#         csv_writer.writeheader()
+# while True:
+#     with open('data.csv') as csv_file:
+#         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        
+#         info = {
+#             "Name": crypto_name_list,
+#             "Market Cap": crypto_market_cap_list,
+#             "Price": crypto_price_list,
+#             "Circulating Supply": crypto_circulating_supply_list,
+#             "Symbol": crypto_symbol_list
+#         }
+#         csv_writer.writerow(info)
