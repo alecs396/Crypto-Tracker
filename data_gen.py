@@ -1,92 +1,48 @@
-from calendar import timegm
-from distutils.log import info
-from time import time
-from requests import Request, Session
-from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
-import json
-import csv
-import datetime
+from binance.client import Client
+from datetime import datetime
+from pandas import DataFrame as df
 import apikey
-import pandas as pd
-import time
 
-# Create empty list
-crypto_time_list = []
-crypto_name_list = []
-crypto_volume_list = []
-crypto_market_cap_list = []
-crypto_price_list = []
-crypto_circulating_supply_list = []
-crypto_symbol_list = []
-# Create empty dataframe to organize data
-df = pd.DataFrame()
+def get_price():
+    client = Client(api_key=apikey.Pkey, api_secret=apikey.Skey)
 
-def scrape():
-    url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+    
+    # This Function gets the Kline data for BTCUSDT
+    candles = client.get_klines(symbol='BTCUSDT', interval=Client.KLINE_INTERVAL_1HOUR)
 
-    # Set Parameters of what crypto to track and what currency the price is displayed as.
-    parameters = {
-        'start': '1',
-        'limit': '10',
-        'convert': 'USD'
-    }
-
-    headers = {
-        'Accepts': 'application/json',
-        'X-CMC_PRO_API_KEY': apikey.key
-    }
-
-    session = Session()
-    session.headers.update(headers)
-
-    try:
-        response = session.get(url, params=parameters)
-        data = json.loads(response.text)
-        coins = data['data']
-        # Append data to lists
-        for x in coins:
-            timestamp = pd.to_datetime(x['last_updated'])
-            crypto_time_list.append(timestamp)
-            crypto_name_list.append(x['name'])
-            crypto_volume_list.append(x['quote']['USD']['volume_24h'])
-            crypto_market_cap_list.append(x['quote']['USD']['market_cap'])
-            crypto_price_list.append(x['quote']['USD']['price'])
-            crypto_circulating_supply_list.append(x['circulating_supply'])
-            crypto_symbol_list.append(x['symbol'])
-    except (ConnectionError, Timeout, TooManyRedirects) as e:
-        print(e)
+    # Create Dataframe
+    candles_data_frame = df(candles)
+    candles_data_frame_date = candles_data_frame[0]
         
-scrape()
-time = pd.datetime.now()
-# Store Data in dataframe
-df['Time'] = crypto_time_list
-df['Name'] = crypto_name_list
-df['24h Volume'] = crypto_volume_list
-df['Market Cap'] = crypto_market_cap_list
-df['Price'] = crypto_price_list
-df['Circulating Supply'] = crypto_circulating_supply_list
-df['Symbol'] = crypto_symbol_list
-df.to_csv('data.csv', index=False, date_format='%Y-%m-%d %H:%M:%S')
-
-print(df)
-
-# fieldnames = ['Time', 'Name', 'Market Cap', 'Price', 'Circulating Supply', 'Symbol']
-
-# with open('data2.csv', 'w') as csv_file:
-#         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-#         csv_writer.writeheader()
-# while True:
-#     scrape()
-#     with open('data2.csv', 'a') as csv_file:
-#         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    final_date = []
         
-#         info = {
-#             "Time": crypto_time_list,
-#             "Name": crypto_name_list,
-#             "Market Cap": crypto_market_cap_list,
-#             "Price": crypto_price_list,
-#             "Circulating Supply": crypto_circulating_supply_list,
-#             "Symbol": crypto_symbol_list
-#         }
-#         csv_writer.writerow(info)
-#     time.sleep(60)
+    # Create Readable dates for datafram
+    for time in candles_data_frame_date.unique():
+        readable = datetime.fromtimestamp(int(time/1000))  # Turn into a readable date. Binance does things in miliseconds hence /1000
+        final_date.append(readable)
+        
+    candles_data_frame.pop(0)
+    candles_data_frame.pop(11)
+        
+    # Create Dataframe for Dates
+    dataframe_final_date = df(final_date)
+    dataframe_final_date.columns = ['date']
+        
+    # Join the two DataFrames together
+    final_dataframe = candles_data_frame.join(dataframe_final_date)
+        
+    # Set index to date
+    final_dataframe.set_index('date', inplace=True)
+    # Label all columns according to python-binance API
+    final_dataframe.columns = ['open', 'high', 'low', 'close', 'volume', 'close_time', 'asset_volume', 'trade_number', 'taker_buy_base', 'taker_buy_quote']
+    
+    return final_dataframe
+        
+# print(get_price())
+    
+
+
+
+    
+
+
