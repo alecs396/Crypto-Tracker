@@ -6,4 +6,7 @@ def plot_candles():
     data = pd.read_csv('data.csv', index_col=0, parse_dates=True)
     # data.date = pd.to_datetime(data.date)
     data.info()
-    mpf.plot(data, type='candle')
+    mpf.plot(data, 
+             type='candle',
+             style='blueskies',
+             tight_layout=True)
