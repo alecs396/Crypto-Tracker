@@ -2,7 +2,7 @@
 
 This is my crypto price ticker. It pulls data from the Binance.US API and plots it on a candlestick graph.
 
-[Software Demo Video](https://youtu.be/08pb3RzIPEE)
+[Software Demo Video](https://youtu.be/j-bclWbBePY)
 
 # Development Environment
 

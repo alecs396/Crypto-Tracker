@@ -16,7 +16,7 @@ def get_price():
     candles_data_frame_date = candles_data_frame[0]
     
         
-    # Create Readable dates for datafram
+    # Create Readable dates for dataframe
     final_date = []
     for time in candles_data_frame_date.unique():
         readable = datetime.fromtimestamp(int(time/1000))  # Turn into a readable date. Binance does things in miliseconds hence /1000
